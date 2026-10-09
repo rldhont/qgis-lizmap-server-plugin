@@ -147,7 +147,7 @@ def test_group_visibility(client):
     assert layers is not None
     assert len(layers) == 2
 
-    # Make a request with LIZMAP_USER_GROUPS with 1 group not authorized
+    # Make a request with LIZMAP_USER_GROUPS with 1 group not authorized: test1
     qs["LIZMAP_USER_GROUPS"] = "test1"
     rv = client.get(_build_query_string(qs), PROJECT_FILE_GROUP_V)
     _check_request(rv, "text/xml")
@@ -156,7 +156,7 @@ def test_group_visibility(client):
     assert layers is not None
     assert len(layers) == 1
 
-    # Make a request with LIZMAP_USER_GROUPS with 2 group authorized
+    # Make a request with LIZMAP_USER_GROUPS with 1 group authorized: test2
     qs["LIZMAP_USER_GROUPS"] = "test2"
     rv = client.get(_build_query_string(qs), PROJECT_FILE_GROUP_V)
     _check_request(rv, "text/xml")
@@ -167,6 +167,24 @@ def test_group_visibility(client):
 
     # Make a request without LIZMAP_USER_GROUPS with 2 groups which 1 is authorized
     qs["LIZMAP_USER_GROUPS"] = "test1,test2"
+    rv = client.get(_build_query_string(qs), PROJECT_FILE_GROUP_V)
+    _check_request(rv, "text/xml")
+
+    layers = rv.xpath("//wms:Layer")
+    assert layers is not None
+    assert len(layers) == 2
+
+    # Make a request with LIZMAP_USER_GROUPS with anonymous group not authorized
+    qs["LIZMAP_USER_GROUPS"] = ""
+    rv = client.get(_build_query_string(qs), PROJECT_FILE_GROUP_V)
+    _check_request(rv, "text/xml")
+
+    layers = rv.xpath("//wms:Layer")
+    assert layers is not None
+    assert len(layers) == 1
+
+    # Make a request with LIZMAP_USER_GROUPS with 1 group authorized: test2
+    qs["LIZMAP_USER_GROUPS"] = "test2"
     rv = client.get(_build_query_string(qs), PROJECT_FILE_GROUP_V)
     _check_request(rv, "text/xml")
 
@@ -402,7 +420,7 @@ def test_group_visibility_headers(client):
     assert layers is not None
     assert len(layers) == 2
 
-    # Make a request with LIZMAP_USER_GROUPS with 1 group not authorized
+    # Make a request with LIZMAP_USER_GROUPS with 1 group not authorized: test1
     headers = {"X-Lizmap-User-Groups": "test1"}
     rv = client.get(qs, projectfile, headers)
     _check_request(rv, "text/xml")
@@ -411,7 +429,7 @@ def test_group_visibility_headers(client):
     assert layers is not None
     assert len(layers) == 1
 
-    # Make a request with LIZMAP_USER_GROUPS with 1 group authorized
+    # Make a request with LIZMAP_USER_GROUPS with 1 group authorized: test2
     headers = {"X-Lizmap-User-Groups": "test2"}
     rv = client.get(qs, projectfile, headers)
     _check_request(rv, "text/xml")
@@ -422,6 +440,24 @@ def test_group_visibility_headers(client):
 
     # Make a request with LIZMAP_USER_GROUPS with 2 groups which 1 is authorized
     headers = {"X-Lizmap-User-Groups": "test1,test2"}
+    rv = client.get(qs, projectfile, headers)
+    _check_request(rv, "text/xml")
+
+    layers = rv.xpath("//wms:Layer")
+    assert layers is not None
+    assert len(layers) == 2
+
+    # Make a request with LIZMAP_USER_GROUPS with anonymous group not authorized
+    headers = {"X-Lizmap-User-Groups": ""}
+    rv = client.get(qs, projectfile, headers)
+    _check_request(rv, "text/xml")
+
+    layers = rv.xpath("//wms:Layer")
+    assert layers is not None
+    assert len(layers) == 1
+
+    # Make a request with LIZMAP_USER_GROUPS with 1 group authorized: test2
+    headers = {"X-Lizmap-User-Groups": "test2"}
     rv = client.get(qs, projectfile, headers)
     _check_request(rv, "text/xml")
 
